@@ -1,0 +1,48 @@
+service: api-test
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+provider:
+  name: aws
+  runtime: python2.7
+  stage: dev
+  region: us-east-1
+
+functions:
+  hello:
+    handler: handler.hello
+
+  envVariables:
+    handler: envVar.handler
+    events:
+      - http:
+          path: /envVariables
+          method: get
+    environment:
+      envVar: 'tramboCloud rules!'
+
+# you can add CloudFormation resource templates here
+resources:
+  Resources:
+    s3bucket:
+     Type: AWS::S3::Bucket
+     Properties:
+       BucketName: ${self:service}-${self:provider.stage}-bucket
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: usersTable
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+#  Outputs:
+#     NewOutput:
+#       Description: "Description for the output"
+#       Value: "Some output value"
